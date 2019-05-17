@@ -1,13 +1,12 @@
+
 // import * as express from 'express';
 import express = require('express');
 import * as bodyParser from 'body-parser';
 import * as ejs from 'ejs';
 import * as mongoose from 'mongoose';
-import { Routes } from './routes';
 import * as cons from 'consolidate';
 
-/*
-////////////////////
+
 const app = express();
 const PORT = 3000;
 // const routesPrv = new Routes(app, db);
@@ -65,51 +64,3 @@ app.get('/signup', function(req, res, next) {
 app.post('/signup', function(req, res, next) {
 
 });
-
-*/
-
-class App {
-    public app: express.Application;
-    public routesPrv; 
-    public db;
-    // public routePrv: Routes = new Routes();
-
-    constructor() {
-        this.app = express();
-        // this.routesPrv.routes(this.app, this.db); 
-        this.routesPrv = new Routes(this.app, this.db); 
-        this.config();
-
-        // this.setupDb();
-    }  
-    // private setupDb() {
-    //     var mongoDb = 'mongodb://127.0.0.1:27017/info_database';
-    //     mongoose.connect(mongoDb);
-    //     this.db = mongoose.connection;
-    //     this.db.on('error', console.error.bind(console, 'MongoDB Connection error'));
-    // }  
-
-    private config(): void{
-        
-        // config ejs view engine
-        this.app.engine('html', cons.swig);
-        // this.app.set('view engine', 'ejs');
-        this.app.set('view engine', 'html');
-        // this.app.set('views', 'views');
-        this.app.set('views', 'views');
-        
-
-        // config static files
-        this.app.use(express.static('public'));
-        
-        // config body parser
-        // this.app.use(express.bodyParser());
-
-        this.app.use(bodyParser.urlencoded({'extended':true})); // parse application/x-www-form-urlencoded
-        this.app.use(bodyParser.json()); // parse application/json
-
-    }
-}
-
-
-export default new App().app;
