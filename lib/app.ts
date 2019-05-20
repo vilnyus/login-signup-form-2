@@ -5,6 +5,7 @@ import * as bodyParser from 'body-parser';
 import * as ejs from 'ejs';
 import * as mongoose from 'mongoose';
 import * as cons from 'consolidate';
+import { SessionHandler } from './sessions';
 
 
 const app = express();
@@ -15,6 +16,8 @@ mongoose.connect(mongoDb);
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB Connection error'));
 
+var sessionHandler = new SessionHandler(db);
+
 // config server
 app.listen(PORT, ()=> {
     console.log(`Server is running on port ${PORT}` );
@@ -22,9 +25,9 @@ app.listen(PORT, ()=> {
 
 // config ejs view engine
 app.engine('html', cons.swig);
-// this.app.set('view engine', 'ejs');
+// app.set('view engine', 'ejs');
 app.set('view engine', 'html');
-// this.app.set('views', 'views');
+// app.set('views', 'views');
 app.set('views', 'views');
 
 // config body-parser
@@ -37,30 +40,16 @@ app.get('/', function(req, res, next) {
 })
 
 // Request Loggin page
-app.get('/login', function(req, res, next) {
-    console.log("display login page");
-    res.render("login1" , { username: "" });
-});
+app.get('/login', sessionHandler.displayLoginPage);
 
 // Handle Login 
-app.post('/login', function(req, res, next) {
-    var username = req.body.username;
-    var password = req.body.password;
+app.post('/login', sessionHandler.handleLoginRequest);
 
-    // console.log(req);
-
-    console.log("user submitted username: " + username + " pass: " + password);
-    next();
-})
 // Signup form
-app.get('/signup', function(req, res, next) {
-    res.render("signup", {
-        username:"", password:"",
-        password_error:"", email:"", 
-        username_error:"", email_error:"",
-        verify_error :""});
-});
+app.get('/signup', sessionHandler.displaySignupPage);
 
-app.post('/signup', function(req, res, next) {
+app.post('/signup', sessionHandler.handleSignup);
 
-});
+
+
+
