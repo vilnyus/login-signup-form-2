@@ -46,9 +46,13 @@ app.get('/login', sessionHandler.displayLoginPage);
 app.post('/login', sessionHandler.handleLoginRequest);
 
 // Signup form
-app.get('/signup', sessionHandler.displaySignupPage);
+app.get('/signup', function (req, res, next) {
+    sessionHandler.displaySignupPage(req, res, next);
+});
 
-app.post('/signup', sessionHandler.handleSignup);
+app.post('/signup', function (req, res, next) {
+    sessionHandler.handleSignup(req, res, next);
+});
 
 
 
