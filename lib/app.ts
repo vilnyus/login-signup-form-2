@@ -10,7 +10,8 @@ import { SessionHandler } from './routes/session';
 const app = express();
 const PORT = 3000;
 // const routesPrv = new Routes(app, db);
-let mongoDb = 'mongodb://127.0.0.1:27017/info_database';
+// let mongoDb = 'mongodb://127.0.0.1:27017/info_database'; //local DB
+let mongoDb = 'mongodb://dolor:135246abc@ds062178.mlab.com:62178/users_db_list'; // cloud DB
 mongoose.connect(mongoDb);
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB Connection error'));

@@ -10,7 +10,6 @@ export class SessionHandler {
     constructor(db) {
         this.users = new UsersDAO(db);
         this.sessions = new SessionDAO(db);
-
         // console.log("check class name " + this.sessions.getClass().getName());
     }
     

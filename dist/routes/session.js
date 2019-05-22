@@ -6,7 +6,7 @@ class SessionHandler {
     constructor(db) {
         this.users = new users_1.UsersDAO(db);
         this.sessions = new sessions_1.SessionDAO(db);
-        console.log("check class name " + this.sessions.getClass().getName());
+        // console.log("check class name " + this.sessions.getClass().getName());
     }
     // Request Login page
     displayLoginPage(req, res, next) {
@@ -19,25 +19,6 @@ class SessionHandler {
         console.log("user submitted username: " + username + " pass: " + password);
         next();
         this.users.validateLogin(username, password, function (err, user) {
-            "use strict";
-            // if (err) {
-            //     if (err.no_such_user) {
-            //         return res.render("login", {username:username, password:"", login_error:"No such user"});
-            //     }
-            //     else if (err.invalid_password) {
-            //         return res.render("login", {username:username, password:"", login_error:"Invalid password"});
-            //     }
-            //     else {
-            //         // Some other kind of error
-            //         return next(err);
-            //     }
-            // }
-            // sessions.startSession(user['_id'], function(err, session_id) {
-            //     "use strict";
-            //     if (err) return next(err);
-            //     res.cookie('session', session_id);
-            //     return res.redirect('/welcome');
-            // });
         });
     }
     // Request Signup page
@@ -74,8 +55,8 @@ class SessionHandler {
                 }
                 // Starting new session
                 // here we have error TypeError: Cannot read property 'sessions' of undefined
-                // console.log(instanceOf this.sessions);
-                this.sessions.startSession(/*user['_id']*/ user, function (err, session_id) {
+                // console.log(instanceOf this.sessions);               
+                this.sessions.startSession(user, function (err, session_id) {
                     console.log("start Session.");
                     if (err) {
                         console.log("Error: startSession.");
