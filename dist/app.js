@@ -1,19 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-// import * as express from 'express';
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const cons = require("consolidate");
-const sessions_1 = require("./sessions");
+const session_1 = require("./routes/session");
 const app = express();
 const PORT = 3000;
 // const routesPrv = new Routes(app, db);
-var mongoDb = 'mongodb://127.0.0.1:27017/info_database';
+let mongoDb = 'mongodb://127.0.0.1:27017/info_database';
 mongoose.connect(mongoDb);
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB Connection error'));
-var sessionHandler = new sessions_1.SessionHandler(db);
+let sessionHandler = new session_1.SessionHandler(db);
 // config server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
@@ -37,5 +36,8 @@ app.get('/login', sessionHandler.displayLoginPage);
 app.post('/login', sessionHandler.handleLoginRequest);
 // Signup form
 app.get('/signup', sessionHandler.displaySignupPage);
-app.post('/signup', sessionHandler.handleSignup);
+// app.post('/signup', sessionHandler.handleSignup);
+app.post('/signup', function (req, res, next) {
+    sessionHandler.handleSignup(req, res, next);
+});
 //# sourceMappingURL=app.js.map

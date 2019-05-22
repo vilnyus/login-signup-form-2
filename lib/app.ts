@@ -1,22 +1,21 @@
 
-// import * as express from 'express';
-import express = require('express');
+import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as ejs from 'ejs';
 import * as mongoose from 'mongoose';
 import * as cons from 'consolidate';
-import { SessionHandler } from './sessions';
+import { SessionHandler } from './routes/session';
 
 
 const app = express();
 const PORT = 3000;
 // const routesPrv = new Routes(app, db);
-var mongoDb = 'mongodb://127.0.0.1:27017/info_database';
+let mongoDb = 'mongodb://127.0.0.1:27017/info_database';
 mongoose.connect(mongoDb);
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB Connection error'));
 
-var sessionHandler = new SessionHandler(db);
+let sessionHandler = new SessionHandler(db);
 
 // config server
 app.listen(PORT, ()=> {
@@ -48,7 +47,10 @@ app.post('/login', sessionHandler.handleLoginRequest);
 // Signup form
 app.get('/signup', sessionHandler.displaySignupPage);
 
-app.post('/signup', sessionHandler.handleSignup);
+// app.post('/signup', sessionHandler.handleSignup);
+app.post('/signup', function (req, res, next) {
+    sessionHandler.handleSignup(req, res, next);
+});
 
 
 

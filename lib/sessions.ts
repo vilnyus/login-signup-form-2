@@ -1,86 +1,50 @@
+import * as crypto from 'crypto';
 
-import { UsersDAO } from "./users";
+export class SessionDAO {
 
-export class SessionHandler {
+    public sessions;
 
-    public users; 
-    // var sessions = new SessionsDAO(db);
-    
     constructor(db) {
-        this.users = new UsersDAO(db);
-    }
-    
-    // Request Login page
-    public displayLoginPage(req, res, next) {
-        res.render("login", {username:"", password:"", login_error:""});
+        this.sessions = db.collection("sessions");
     }
 
-    // Handle Login
-    public handleLoginRequest(req, res, next) {
-        var username = req.body.username;
-        var password = req.body.password;
+    public startSession(username, callback) {
+        let current_date: string = (new Date()).valueOf().toString();
+        let random: string = Math.random().toString();
+        let session_id = crypto.createHash('sha1').update(current_date + random).digest('hex');
 
-        console.log("user submitted username: " + username + " pass: " + password);
-        next();
+        let session = { 'username': username, '_id': session_id };
+
+        this.sessions.insertOne(session, function(err, result) {
+            callback(err, session_id);
+        });
     }
 
-    // Request Signup page
-    public displaySignupPage(req, res, next) {
-        res.render("signup", 
-            {username:"", password:"",
-            password_error:"",
-            email:"", username_error:"", email_error:"",
-            verify_error :""});
+    public endSession(session_id, callback) {
+        sessionStorage.deleteOne( { '_id': session_id}, function(err, numRemoved) {
+            console.log("number of removed session is " + numRemoved);
+            callback(err);
+        });
     }
 
-    // Handle Signup page
-    public handleSignup(req, res, next) {
-        var email = req.body.email
-        var username = req.body.username
-        var password = req.body.password
-        var verify = req.body.verify
+    public getUserName(session_id, callback) {
 
-        var errors = {'username': username, 'email': email}
-
-        if(this.validateSignup(username, password, verify, email, errors)) {
-            console.log("validateing signup");
-
-            this.users.addUser(username, password, email, function(err, user) {
-                console.log("add user");
-            });
+        if (!session_id) {
+            callback(Error("Session not set"), null);
+            return;
         }
-    }
 
-    public validateSignup(username, password, verify, email, errors) {
- 
-        var USER_RE = /^[a-zA-Z0-9_-]{3,20}$/;
-        var PASS_RE = /^.{3,20}$/;
-        var EMAIL_RE = /^[\S]+@[\S]+\.[\S]+$/;
+        this.sessions.findOne({ '_id' : session_id }, function(err, session) {
+            "use strict";
 
-        errors['username_error'] = "";
-        errors['password_error'] = "";
-        errors['verify_error'] = "";
-        errors['email_error'] = "";
+            if (err) return callback(err, null);
 
-        if (!USER_RE.test(username)) {
-            errors['username_error'] = "invalid username. try just letters and numbers";
-            return false;
-        }
-        if (!PASS_RE.test(password)) {
-            errors['password_error'] = "invalid password.";
-            return false;
-        }
-        if (password != verify) {
-            errors['verify_error'] = "password must match";
-            return false;
-        }
-        if (email != "") {
-            if (!EMAIL_RE.test(email)) {
-                errors['email_error'] = "invalid email address";
-                return false;
+            if (!session) {
+                callback(new Error("Session: " + session + " does not exist"), null);
+                return;
             }
-        }
-        console.log('validate signup.');
-        return true;
+
+            callback(null, session.username);
+        });
     }
 }

@@ -7,17 +7,19 @@ class UsersDAO {
     }
     addUser(username, password, email, callback) {
         // Generate password hash
-        var salt = bcrypt.genSaltSync();
-        var password_hash = bcrypt.hashSync(password, salt);
+        let salt = bcrypt.genSaltSync();
+        let password_hash = bcrypt.hashSync(password, salt);
         // Create user document
-        var user = { '_id': username, 'password': password_hash };
+        let user = { '_id': username, 'password': password_hash };
         if (email != "") {
             user['email'] = email;
         }
-        this.users.insert(user, function (err, inserted) {
+        this.users.insertOne(user, function (err, inserted) {
             if (!err) {
-                return callback(err, null);
+                // if no error returns 
+                return callback(err, inserted.ops[0]._id);
             }
+            // in case of error returns error
             return callback(err, null);
         });
     }

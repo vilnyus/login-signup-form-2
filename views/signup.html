@@ -30,9 +30,22 @@
                     <input type="text" name="password" value="">
                 </td>
                 <td class="error">
-                    {{verify_error}}
+                    {{password_error}}
+                        
                 </td>
             </tr>
+            <tr>
+                <td class="label">
+                  Verify Password
+                </td>
+                <td>
+                  <input type="password" name="verify" value="">
+                </td>
+                <td class="error">
+              {{verify_error}}
+                  
+                </td>
+              </tr>
             <tr>
                 <td class="label">
                     Email (optional)
