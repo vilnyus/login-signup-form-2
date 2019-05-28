@@ -16,7 +16,8 @@ mongoose.connect(mongoDb);
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB Connection error'));
 
-let sessionHandler = new SessionHandler(db);
+// let sessionHandler = new SessionHandler(db);
+SessionHandler.staticInit(db);
 
 // config server
 app.listen(PORT, ()=> {
@@ -39,19 +40,27 @@ app.get('/', function(req, res, next) {
     res.render("index");
 })
 
+app.get('/welcome', function(req, res, next) {
+    console.log("display index welcome page.");
+    res.render("welcome");
+})
+
 // Request Loggin page
-app.get('/login', sessionHandler.displayLoginPage);
+app.get('/login', SessionHandler.displayLoginPage);
 
 // Handle Login 
-app.post('/login', sessionHandler.handleLoginRequest);
+// app.post('/login', SessionHandler.handleLoginRequest);
+app.post('/login', function (req, res, next) {
+    SessionHandler.handleLoginRequest(req, res, next);
+});
 
 // Signup form
-app.get('/signup', sessionHandler.displaySignupPage);
+app.get('/signup', SessionHandler.displaySignupPage);
 
-// app.post('/signup', sessionHandler.handleSignup);
-app.post('/signup', function (req, res, next) {
-    sessionHandler.handleSignup(req, res, next);
-});
+app.post('/signup', SessionHandler.handleSignup);
+// app.post('/signup', function (req, res, next) {
+//     SessionHandler.handleSignup(req, res, next);
+// });
 
 
 

@@ -13,7 +13,8 @@ let mongoDb = 'mongodb://dolor:135246abc@ds062178.mlab.com:62178/users_db_list';
 mongoose.connect(mongoDb);
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB Connection error'));
-let sessionHandler = new session_1.SessionHandler(db);
+// let sessionHandler = new SessionHandler(db);
+session_1.SessionHandler.staticInit(db);
 // config server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
@@ -31,14 +32,21 @@ app.get('/', function (req, res, next) {
     console.log("display index page");
     res.render("index");
 });
-// Request Loggin page
-app.get('/login', sessionHandler.displayLoginPage);
-// Handle Login 
-app.post('/login', sessionHandler.handleLoginRequest);
-// Signup form
-app.get('/signup', sessionHandler.displaySignupPage);
-// app.post('/signup', sessionHandler.handleSignup);
-app.post('/signup', function (req, res, next) {
-    sessionHandler.handleSignup(req, res, next);
+app.get('/welcome', function (req, res, next) {
+    console.log("display index welcome page.");
+    res.render("welcome");
 });
+// Request Loggin page
+app.get('/login', session_1.SessionHandler.displayLoginPage);
+// Handle Login 
+// app.post('/login', SessionHandler.handleLoginRequest);
+app.post('/login', function (req, res, next) {
+    session_1.SessionHandler.handleLoginRequest(req, res, next);
+});
+// Signup form
+app.get('/signup', session_1.SessionHandler.displaySignupPage);
+app.post('/signup', session_1.SessionHandler.handleSignup);
+// app.post('/signup', function (req, res, next) {
+//     SessionHandler.handleSignup(req, res, next);
+// });
 //# sourceMappingURL=app.js.map

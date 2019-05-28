@@ -1,38 +1,82 @@
 
 import { UsersDAO } from "../users";
-import { SessionDAO } from "../sessions";
+import { SessionsDAO } from "../sessions";
 
 export class SessionHandler {
 
-    public users; 
-    public sessions;
+    // public users: any; 
+    // public sessions: any;
+    static users: any; 
+    static sessions: any;
     
-    constructor(db) {
-        this.users = new UsersDAO(db);
-        this.sessions = new SessionDAO(db);
-        // console.log("check class name " + this.sessions.getClass().getName());
+    static staticInit(db) {
+        SessionHandler.users = new UsersDAO(db);
+        SessionHandler.sessions = new SessionsDAO(db);
     }
     
     // Request Login page
-    public displayLoginPage(req, res, next) {
+    static displayLoginPage(req, res, next) {
         res.render("login", {username:"", password:"", login_error:""});
     }
 
     // Handle Login
-    public handleLoginRequest(req, res, next) {
+    static handleLoginRequest(req, res, next) {
+        
         var username = req.body.username;
         var password = req.body.password;
 
         console.log("user submitted username: " + username + " pass: " + password);
         next();
 
-        this.users.validateLogin(username, password, function(err, user) {
-            
+        SessionHandler.users.validateLogin(username, password, function(err, user) {
+
+            SessionHandler.sessions.startSession(user['_id'], function(err, session_id) {
+
+                console.log("starting new session.", user['_id']);
+                if (err) {
+                    console.log("We have error.");
+                    return next(err);
+                } else {
+                    console.log("We have no error.");
+                }
+
+                res.cookie('session', session_id);
+                return res.redirect('/welcome');
+            });            
+        });
+
+        SessionHandler.users.validateLogin(username, password, function(err, user) {
+            console.log("Validating login user.");
+            if(err) {
+                if(err.no_such_user_error) {
+                    res.render("login", { username: username, password: "", login_username_error: "No such user"})
+                }
+                else if(err.invalid_password_error) {
+                    res.render("login", { username: username, password: password, login_password_error: "Invalid password"})
+                }
+                else {
+                    return next(err);
+                }
+            }
+
+            SessionHandler.sessions.startSession(user['_id'], function(err, session_id) {
+
+                console.log("starting new session.", user['_id']);
+                if (err) {
+                    console.log("We have error.");
+                    return next(err);
+                } else {
+                    console.log("We have no error.");
+                }
+
+                res.cookie('session', session_id);
+                return res.redirect('/welcome');
+            });            
         });
     }
 
     // Request Signup page
-    public displaySignupPage(req, res, next) {
+    static displaySignupPage(req, res, next) {
         res.render("signup", 
             {username:"", password:"",
             password_error:"",
@@ -41,7 +85,7 @@ export class SessionHandler {
     }
 
     // Handle Signup page
-    public handleSignup(req, res, next) {
+    static handleSignup(req, res, next) {
         let email: string = req.body.email
         let username: string = req.body.username
         let password: string = req.body.password
@@ -50,11 +94,11 @@ export class SessionHandler {
         let errors = {'username': username, 'email': email}
 
         // checking validation of input values
-        if(this.validateSignup(username, password, verify, email, errors)) {
+        if(SessionHandler.validateSignup(username, password, verify, email, errors)) {
             console.log("validateing signup");
 
             // if validated add user data to db
-            this.users.addUser(username, password, email, function(err, user) {
+            SessionHandler.users.addUser(username, password, email, function(err, user) {
                 console.log("add user " + user);
                 
                 if (err) {
@@ -72,7 +116,7 @@ export class SessionHandler {
                 // Starting new session
                 // here we have error TypeError: Cannot read property 'sessions' of undefined
                 // console.log(instanceOf this.sessions);               
-                this.sessions.startSession(user, function(err, session_id) {
+                SessionHandler.sessions.startSession(user, function(err, session_id) {
                     console.log("start Session.");
 
                     if (err) {
@@ -84,8 +128,7 @@ export class SessionHandler {
                     console.log("redirect to welcome.");
 
                     return res.redirect('/welcome');
-                });
-                
+                });                
             
             });
 
@@ -94,7 +137,7 @@ export class SessionHandler {
 
     }
 
-    public validateSignup(username, password, verify, email, errors) {
+    static validateSignup(username, password, verify, email, errors) {
  
         console.log('validate signup.');
         var USER_RE = /^[a-zA-Z0-9_-]{3,20}$/;
@@ -128,3 +171,4 @@ export class SessionHandler {
         return true;
     }
 }
+

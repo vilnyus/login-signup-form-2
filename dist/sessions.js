@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const crypto = require("crypto");
-class SessionDAO {
+class SessionsDAO {
     constructor(db) {
         this.sessions = db.collection("sessions");
     }
@@ -37,5 +37,5 @@ class SessionDAO {
         });
     }
 }
-exports.SessionDAO = SessionDAO;
+exports.SessionsDAO = SessionsDAO;
 //# sourceMappingURL=sessions.js.map
