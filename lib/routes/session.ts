@@ -26,25 +26,8 @@ export class SessionHandler {
         var password = req.body.password;
 
         console.log("user submitted username: " + username + " pass: " + password);
-        next();
-
-        SessionHandler.users.validateLogin(username, password, function(err, user) {
-
-            SessionHandler.sessions.startSession(user['_id'], function(err, session_id) {
-
-                console.log("starting new session.", user['_id']);
-                if (err) {
-                    console.log("We have error.");
-                    return next(err);
-                } else {
-                    console.log("We have no error.");
-                }
-
-                res.cookie('session', session_id);
-                return res.redirect('/welcome');
-            });            
-        });
-
+       
+        // Validateing user/password to login
         SessionHandler.users.validateLogin(username, password, function(err, user) {
             console.log("Validating login user.");
             if(err) {
@@ -59,6 +42,7 @@ export class SessionHandler {
                 }
             }
 
+            // 
             SessionHandler.sessions.startSession(user['_id'], function(err, session_id) {
 
                 console.log("starting new session.", user['_id']);
