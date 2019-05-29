@@ -1,4 +1,5 @@
 import * as bcrypt from 'bcrypt-nodejs';
+import { LoginError } from "./errors";
 
 export class UsersDAO {
     public users;
@@ -43,20 +44,20 @@ export class UsersDAO {
 
             if (user) {
                 if (bcrypt.compareSync(password, user.password)) {
+                    console.log("compareing passwords.");
                     callback(null, user);
                 }
                 
                 else {
-                    var invalid_password_error = new Error("Invalid password");
+                    console.log("Password is not correct.");
+                    var invalid_password_error: any = new LoginError("Invalid password");
                     // Extra field to distinguish this from a db error
                     invalid_password_error.invalid_password = true;
                     callback(invalid_password_error, null);
-                }
-                
-            }
-            
+                }                
+            }            
             else {
-                var no_such_user_error = new Error("User: " + user + " does not exist");
+                var no_such_user_error: any = new LoginError("User: " + user + " does not exist");
                 // Extra field to distinguish this from a db error
                 no_such_user_error.no_such_user = true;
                 callback(no_such_user_error, null);

@@ -1,6 +1,7 @@
 
 import { UsersDAO } from "../users";
 import { SessionsDAO } from "../sessions";
+import { LoginError } from "../errors";
 
 export class SessionHandler {
 
@@ -30,28 +31,28 @@ export class SessionHandler {
         // Validateing user/password to login
         SessionHandler.users.validateLogin(username, password, function(err, user) {
             console.log("Validating login user.");
-            if(err) {
-                if(err.no_such_user_error) {
-                    res.render("login", { username: username, password: "", login_username_error: "No such user"})
+           
+            if(err && err instanceof LoginError) {
+                
+                if(err.no_such_user) {
+                    return res.render("login", { username: username, password: "", login_username_error: "No such user"})
                 }
-                else if(err.invalid_password_error) {
-                    res.render("login", { username: username, password: password, login_password_error: "Invalid password"})
+                else if(err.invalid_password) {
+                    
+                    return res.render("login", { username: username, password: password, login_password_error: "Invalid password"})
                 }
                 else {
                     return next(err);
                 }
             }
 
-            // 
+            // Calling only when user = true
             SessionHandler.sessions.startSession(user['_id'], function(err, session_id) {
-
                 console.log("starting new session.", user['_id']);
                 if (err) {
                     console.log("We have error.");
                     return next(err);
-                } else {
-                    console.log("We have no error.");
-                }
+                } 
 
                 res.cookie('session', session_id);
                 return res.redirect('/welcome');
@@ -92,14 +93,12 @@ export class SessionHandler {
                         errors['username_error'] = "Username already in use. Please choose another";
                         return res.render("signup", errors);
                     }
-                    // this was a different error
+                    // For any pther type of errors
                     else {
                         return next(err);
                     }
                 }
-                // Starting new session
-                // here we have error TypeError: Cannot read property 'sessions' of undefined
-                // console.log(instanceOf this.sessions);               
+                // Starting new session            
                 SessionHandler.sessions.startSession(user, function(err, session_id) {
                     console.log("start Session.");
 
@@ -109,7 +108,6 @@ export class SessionHandler {
                     }
 
                     res.cookie('session', session_id);
-                    console.log("redirect to welcome.");
 
                     return res.redirect('/welcome');
                 });                
