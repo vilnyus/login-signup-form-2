@@ -8,6 +8,26 @@ export class SessionsDAO {
         this.sessions = db.collection("sessions");
     }
 
+    // geting username for an existing session
+    public getUsername(session_id, callback) {
+        if(!session_id) {
+            callback(Error("Session does not exist"), null);
+            return;
+        }
+        this.sessions.findOne({'_id': session_id}, function(err, session) {
+            if(err) { 
+                return callback(err, null)
+            }
+
+            if(!session) {
+                callback(Error("Session " + session + " does not exists."), null);
+                return;
+            }
+
+            callback(null, session.username);
+        });
+    }
+
     public startSession(username, callback) {
         let current_date: string = (new Date()).valueOf().toString();
         let random: string = Math.random().toString();
@@ -20,8 +40,10 @@ export class SessionsDAO {
         });
     }
 
+    // to handle logout
     public endSession(session_id, callback) {
-        sessionStorage.deleteOne( { '_id': session_id}, function(err, numRemoved) {
+        // find logged user by session ID
+        this.sessions.deleteOne( { '_id': session_id}, function(err, numRemoved) {
             console.log("number of removed session is " + numRemoved);
             callback(err);
         });

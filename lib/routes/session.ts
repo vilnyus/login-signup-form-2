@@ -2,17 +2,41 @@
 import { UsersDAO } from "../users";
 import { SessionsDAO } from "../sessions";
 import { LoginError } from "../errors";
+import { userInfo } from "os";
 
 export class SessionHandler {
 
-    // public users: any; 
-    // public sessions: any;
     static users: any; 
     static sessions: any;
     
     static staticInit(db) {
         SessionHandler.users = new UsersDAO(db);
         SessionHandler.sessions = new SessionsDAO(db);
+    }
+
+    static isLoggedInMiddleware(req, res, next) {
+        // console.log("cookies ", req.cookies);
+        // console.log("cookies ", req.cookies.session);
+        var session_id = req.cookies.session;
+
+        SessionHandler.sessions.getUserName(session_id, function(err, username) {
+            if(!err && username) {
+                req.username = username;
+            }
+
+            return next();
+        });        
+    }
+
+    // Request welcome page
+    static displayWelcomePage(req, res, next) {
+        // If user does not exists.
+        if(!req.username) {
+            console.log("Can't identify user, go to signup page. ", req.username);
+            return res.redirect("/signup");
+        }
+        // If user exists.
+        return res.render('welcome', {'username': req.username});
     }
     
     // Request Login page
@@ -33,7 +57,7 @@ export class SessionHandler {
             console.log("Validating login user.");
            
             if(err && err instanceof LoginError) {
-                
+
                 if(err.no_such_user) {
                     return res.render("login", { username: username, password: "", login_username_error: "No such user"})
                 }
@@ -55,8 +79,18 @@ export class SessionHandler {
                 } 
 
                 res.cookie('session', session_id);
+                // console.log("Here is res ", res);
                 return res.redirect('/welcome');
             });            
+        });
+    }
+
+    // handle logout and delete session from cookies
+    static displayLogoutPage(req, res, next) {
+        var session_id = res.cookies.session;
+        SessionHandler.sessions.endSession(session_id, function(err) {
+            res.cookie('session', '');
+            return res.redirect('/login');
         });
     }
 

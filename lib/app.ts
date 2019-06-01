@@ -4,6 +4,7 @@ import * as bodyParser from 'body-parser';
 import * as ejs from 'ejs';
 import * as mongoose from 'mongoose';
 import * as cons from 'consolidate';
+import * as cookieParser from 'cookie-parser';
 import { SessionHandler } from './routes/session';
 
 
@@ -26,10 +27,15 @@ app.listen(PORT, ()=> {
 
 // config ejs view engine
 app.engine('html', cons.swig);
-// app.set('view engine', 'ejs');
+app.set('view engine', 'ejs');
 app.set('view engine', 'html');
-// app.set('views', 'views');
 app.set('views', 'views');
+
+// Middleware to check is user logged in
+app.use(SessionHandler.isLoggedInMiddleware);
+
+// config cookie parser
+app.use(cookieParser());
 
 // config body-parser
 app.use(bodyParser.urlencoded({'extended':true})); // parse application/x-www-form-urlencoded
@@ -40,13 +46,14 @@ app.get('/', function(req, res, next) {
     res.render("index");
 })
 
-app.get('/welcome', function(req, res, next) {
-    console.log("display index welcome page.");
-    res.render("welcome");
-})
+// Request Welcome page
+app.get('/welcome', SessionHandler.displayWelcomePage);
 
 // Request Loggin page
 app.get('/login', SessionHandler.displayLoginPage);
+
+// Request Loggin page
+app.get('/logout', SessionHandler.displayLogoutPage);
 
 // Handle Login 
 // app.post('/login', SessionHandler.handleLoginRequest);

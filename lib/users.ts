@@ -50,7 +50,7 @@ export class UsersDAO {
                 
                 else {
                     console.log("Password is not correct.");
-                    var invalid_password_error: any = new LoginError("Invalid password");
+                    var invalid_password_error = new LoginError("Invalid password");
                     // Extra field to distinguish this from a db error
                     invalid_password_error.invalid_password = true;
                     callback(invalid_password_error, null);
