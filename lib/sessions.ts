@@ -27,7 +27,7 @@ export class SessionsDAO {
             callback(null, session.username);
         });
     }
-
+    // start new session
     public startSession(username, callback) {
         let current_date: string = (new Date()).valueOf().toString();
         let random: string = Math.random().toString();
@@ -49,6 +49,7 @@ export class SessionsDAO {
         });
     }
 
+    // getting login username
     public getUserName(session_id, callback) {
 
         if (!session_id) {

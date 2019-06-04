@@ -79,9 +79,6 @@ export class SessionHandler {
 
                 res.cookie('session', session_id);
                 console.log(session_id);
-                // console.log("From cookie. ", req.cookies.session);
-                // console.log(req);
-                // console.log("Here is res ", res);
                 return res.redirect('/welcome');
             });            
         });

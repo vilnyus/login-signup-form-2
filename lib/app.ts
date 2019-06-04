@@ -27,23 +27,24 @@ app.listen(PORT, ()=> {
 
 // config ejs view engine
 app.engine('html', cons.swig);
-app.set('view engine', 'ejs');
+// app.set('view engine', 'ejs');
 app.set('view engine', 'html');
-app.set('views', 'views');
+// app.set('views', 'views');
 
-// config cookie parser
+// Config cookie parser
 app.use(cookieParser());
 
-// config body-parser
+// Config body-parser
 app.use(bodyParser.urlencoded({'extended':true})); // parse application/x-www-form-urlencoded
 app.use(bodyParser.json()); // parse application/json
 
 // Middleware to check is user logged in
 app.use(SessionHandler.isLoggedInMiddleware);
 
+// Request Index page
 app.get('/', function(req, res, next) {
     console.log("display index page");
-    res.render("index");
+    res.redirect('/welcome');
 })
 
 // Request Welcome page
@@ -56,18 +57,14 @@ app.get('/login', SessionHandler.displayLoginPage);
 app.get('/logout', SessionHandler.displayLogoutPage);
 
 // Handle Login 
-// app.post('/login', SessionHandler.handleLoginRequest);
-app.post('/login', function (req, res, next) {
-    SessionHandler.handleLoginRequest(req, res, next);
-});
+app.post('/login', SessionHandler.handleLoginRequest);
 
 // Signup form
 app.get('/signup', SessionHandler.displaySignupPage);
 
+// Handle signup
 app.post('/signup', SessionHandler.handleSignup);
-// app.post('/signup', function (req, res, next) {
-//     SessionHandler.handleSignup(req, res, next);
-// });
+
 
 
 
