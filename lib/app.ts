@@ -31,15 +31,15 @@ app.set('view engine', 'ejs');
 app.set('view engine', 'html');
 app.set('views', 'views');
 
-// Middleware to check is user logged in
-app.use(SessionHandler.isLoggedInMiddleware);
-
 // config cookie parser
 app.use(cookieParser());
 
 // config body-parser
 app.use(bodyParser.urlencoded({'extended':true})); // parse application/x-www-form-urlencoded
 app.use(bodyParser.json()); // parse application/json
+
+// Middleware to check is user logged in
+app.use(SessionHandler.isLoggedInMiddleware);
 
 app.get('/', function(req, res, next) {
     console.log("display index page");
